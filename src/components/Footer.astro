@@ -1,0 +1,27 @@
+---
+// Simple footer with copyright
+---
+
+<footer class="w-full border-t border-black/5 bg-black/[0.02] snap-start">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+      <div>
+        <div class="text-2xl font-bold mb-3">NorthStar Labs</div>
+        <p class="text-sm text-black/60">
+          © {new Date().getFullYear()} NorthStar Labs — Nederland
+        </p>
+      </div>
+      <div class="flex flex-col items-start md:items-end gap-3">
+        <a 
+          href="mailto:liviu@northstarlabs.nl" 
+          class="text-black/80 hover:text-black transition-colors font-medium group flex items-center gap-2"
+        >
+          liviu@northstarlabs.nl
+          <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,15 @@
+---
+interface Props {
+  id?: string;
+  background?: 'white' | 'light';
+}
+
+const { id, background = 'white' } = Astro.props;
+const bgClass = background === 'light' ? 'bg-black/[0.02]' : 'bg-white';
+---
+
+<section id={id} class={`w-full min-h-screen flex items-center ${bgClass} relative snap-start snap-always`}>
+  <div class="max-w-5xl mx-auto px-6 lg:px-8 w-full py-24 md:py-32">
+    <slot />
+  </div>
+</section>
