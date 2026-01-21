@@ -25,7 +25,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Check if Resend API key is configured
-    const resendApiKey = import.meta.env.RESEND_API_KEY;
+    // Use process.env for runtime environment variables in serverless functions
+    const resendApiKey = process.env.RESEND_API_KEY;
     if (!resendApiKey) {
       console.error('RESEND_API_KEY is not configured');
       return new Response(

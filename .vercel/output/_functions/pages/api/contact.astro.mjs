@@ -18,8 +18,14 @@ const POST = async ({ request }) => {
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
-    const resendApiKey = "re_haUmYNpD_mvQnEE4pds3P3SwUvAzfMC6r";
-    if (!resendApiKey) ;
+    const resendApiKey = process.env.RESEND_API_KEY;
+    if (!resendApiKey) {
+      console.error("RESEND_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "E-mailservice is niet geconfigureerd. Neem direct contact op via liviu@northstarlabs.nl" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
     const resend = new Resend(resendApiKey);
     const { data, error } = await resend.emails.send({
       from: "NorthStar Labs <contact@updates.northstarlabs.nl>",
