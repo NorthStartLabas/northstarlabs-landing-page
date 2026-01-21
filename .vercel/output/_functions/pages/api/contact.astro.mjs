@@ -23,7 +23,6 @@ const POST = async ({ request }) => {
     const resend = new Resend(resendApiKey);
     const { data, error } = await resend.emails.send({
       from: "NorthStar Labs <contact@updates.northstarlabs.nl>",
-      // Replace with your verified domain
       to: "liviu@northstarlabs.nl",
       replyTo: email,
       subject: `Nieuw contactformulier: ${name}`,
