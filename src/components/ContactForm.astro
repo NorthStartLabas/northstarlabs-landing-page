@@ -76,9 +76,20 @@
 </div>
 
 <script>
+  import emailjs from '@emailjs/browser';
+
   const form = document.getElementById('contact-form') as HTMLFormElement;
   const messageDiv = document.getElementById('form-message') as HTMLDivElement;
   const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+  // Initialize EmailJS (you'll need to set these in your environment variables)
+  const EMAILJS_SERVICE_ID = import.meta.env.PUBLIC_EMAILJS_SERVICE_ID || '';
+  const EMAILJS_TEMPLATE_ID = import.meta.env.PUBLIC_EMAILJS_TEMPLATE_ID || '';
+  const EMAILJS_PUBLIC_KEY = import.meta.env.PUBLIC_EMAILJS_PUBLIC_KEY || '';
+
+  if (EMAILJS_PUBLIC_KEY) {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -90,37 +101,58 @@
 
     // Get form data
     const formData = new FormData(form);
-    const data = {
-      name: formData.get('name') as string,
-      email: formData.get('email') as string,
-      company: formData.get('company') as string,
-      message: formData.get('message') as string,
-    };
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const company = formData.get('company') as string;
+    const message = formData.get('message') as string;
+
+    // Validate
+    if (!name || !email || !message) {
+      messageDiv.textContent = 'Naam, e-mail en bericht zijn verplicht.';
+      messageDiv.className = 'text-sm text-red-800 bg-red-50 p-5 border border-red-200 rounded-xl';
+      messageDiv.classList.remove('hidden');
+      submitButton.disabled = false;
+      submitButton.textContent = 'Versturen';
+      return;
+    }
+
+    // If EmailJS is not configured, show fallback
+    if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
+      // Fallback: open mailto link
+      const subject = encodeURIComponent(`Contactformulier: ${name}`);
+      const body = encodeURIComponent(
+        `Naam: ${name}\nE-mail: ${email}\nBedrijf: ${company || 'Niet opgegeven'}\n\nBericht:\n${message}`
+      );
+      window.location.href = `mailto:liviu@northstarlabs.nl?subject=${subject}&body=${body}`;
+      messageDiv.textContent = 'Je e-mailclient wordt geopend. Als dit niet werkt, stuur een e-mail naar liviu@northstarlabs.nl';
+      messageDiv.className = 'text-sm text-blue-800 bg-blue-50 p-5 border border-blue-200 rounded-xl';
+      messageDiv.classList.remove('hidden');
+      submitButton.disabled = false;
+      submitButton.textContent = 'Versturen';
+      return;
+    }
 
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      const templateParams = {
+        from_name: name,
+        from_email: email,
+        company: company || 'Niet opgegeven',
+        message: message,
+        to_email: 'liviu@northstarlabs.nl',
+      };
 
-      const result = await response.json();
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
 
-      if (response.ok) {
-        // Success
-        messageDiv.textContent = result.message || 'Bericht succesvol verzonden! We nemen zo snel mogelijk contact met je op.';
-        messageDiv.className = 'text-sm text-green-800 bg-green-50 p-5 border border-green-200 rounded-xl';
-        form.reset();
-      } else {
-        // Error
-        messageDiv.textContent = result.error || 'Er is iets misgegaan. Probeer het opnieuw.';
-        messageDiv.className = 'text-sm text-red-800 bg-red-50 p-5 border border-red-200 rounded-xl';
-      }
+      // Success
+      messageDiv.textContent = 'Bericht succesvol verzonden! We nemen zo snel mogelijk contact met je op.';
+      messageDiv.className = 'text-sm text-green-800 bg-green-50 p-5 border border-green-200 rounded-xl';
+      messageDiv.classList.remove('hidden');
+      form.reset();
     } catch (error) {
-      messageDiv.textContent = 'Er is een fout opgetreden. Probeer het later opnieuw.';
+      console.error('EmailJS error:', error);
+      messageDiv.textContent = 'Er is een fout opgetreden. Probeer het later opnieuw of stuur een e-mail naar liviu@northstarlabs.nl';
       messageDiv.className = 'text-sm text-red-800 bg-red-50 p-5 border border-red-200 rounded-xl';
+      messageDiv.classList.remove('hidden');
     } finally {
       submitButton.disabled = false;
       submitButton.textContent = 'Versturen';
